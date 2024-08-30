@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-application
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: 'git@github.com:athulmv06/nginx.git'
+      path: nginx-1
+      targetRevision: master
+      helm:
+        valueFiles:
+          - values.yaml
+          - $values/nginx-1/dev-values.yaml
+    - repoURL: 'git@github.com:athulmv06/nginx.git'
+      targetRevision: master
+      ref: values
+  destination:
+    server: 'https://9A17AFDF3D2F0B2BEC9C977655EEADB5.gr7.eu-west-1.eks.amazonaws.com'
+    namespace: default
+  syncPolicy:
+    syncOptions:
+      - PruneLast=true
+      - Validate=false
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 2
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
